@@ -1,0 +1,55 @@
+unit UnitParser;
+
+interface
+
+type
+ {
+  TProjectFile = class
+  private
+    FFullPath: string;
+    FTitle: string;
+    FUnits: TUnitList;
+    function GetFileName: string;
+  protected
+    function ParseItem(const AStr: string): TUnitFile;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property FullPath: string read FFullPath write FFullPath;
+    property FileName: string read GetFileName;
+    property Title: string read FTitle write FTitle;
+    property Units: TUnitList read FUnits write FUnits;
+
+    procedure ParseBlock(const ABlock: string);
+    procedure ParseTitle(const ABlock: string);
+  end;  }
+
+  TProjectGroupFile  = class
+  private
+    FFullPath: string;
+    FTitle: string;
+ //   FUnits: TUnitList;
+    function GetFileName: string;
+  protected
+  //  function ParseItem(const AStr: string): TUnitFile;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property FullPath: string read FFullPath write FFullPath;
+    property FileName: string read GetFileName;
+    property Title: string read FTitle write FTitle;
+//    property Units: TUnitList read FUnits write FUnits;
+
+    procedure ParseBlock(const ABlock: string);
+    procedure ParseTitle(const ABlock: string);
+  end;
+
+
+
+
+
+implementation
+
+end.

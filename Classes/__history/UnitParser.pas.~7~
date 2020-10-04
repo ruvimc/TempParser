@@ -1,0 +1,147 @@
+unit UnitParser;
+
+interface
+
+uses  System.Generics.Collections, System.Classes, System.SysUtils, System.IOUtils;
+
+type
+
+  TProjectFile = class
+  private
+//    FFullPath: string;
+ //   FTitle: string;
+ //   FUnits: TUnitList;
+ //   function GetFileName: string;
+  protected
+ //   function ParseItem(const AStr: string): TUnitFile;
+  public
+//    constructor Create;
+ //   destructor Destroy; override;
+
+//    property FullPath: string read FFullPath write FFullPath;
+ //   property FileName: string read GetFileName;
+ //   property Title: string read FTitle write FTitle;
+ //   property Units: TUnitList read FUnits write FUnits;
+
+ //   procedure ParseBlock(const ABlock: string);
+ //   procedure ParseTitle(const ABlock: string);
+  end;
+
+  TProjectGroupFile  = class
+  private
+    FFullPath: string;
+    FTitle: string;
+ //   FUnits: TUnitList;
+//    function GetFileName: string;
+  protected
+  //  function ParseItem(const AStr: string): TUnitFile;
+  public
+//    constructor Create;
+ //   destructor Destroy; override;
+
+//    property FullPath: string read FFullPath write FFullPath;
+//    property FileName: string read GetFileName;
+//    property Title: string read FTitle write FTitle;
+//    property Units: TUnitList read FUnits write FUnits;
+
+//    procedure ParseBlock(const ABlock: string);
+ //   procedure ParseTitle(const ABlock: string);
+  end;
+
+  TProjectsList = class(TList<TProjectGroupFile>)
+  protected
+   function ParseFile(const APath: string): TProjectGroupFile;
+  public
+    procedure ParseDirectory(const ADirectory: string; AIsRecursively: Boolean);
+  end;
+
+
+
+
+implementation
+
+{ TProjectsList }
+
+procedure TProjectsList.ParseDirectory(const ADirectory: string;
+  AIsRecursively: Boolean);
+var
+  LDirectories: TArray<string>;
+  LFiles: TArray<string>;
+  LCurrentPath: string;
+  LPF: TProjectFile;
+begin
+  if AIsRecursively then
+  begin
+    LDirectories := TDirectory.GetDirectories(ADirectory);
+    for LCurrentPath in LDirectories do
+      ParseDirectory(LCurrentPath, True);
+  end;
+  LFiles := TDirectory.GetFiles(ADirectory, '*.dpr');
+  for LCurrentPath in LFiles do
+  begin
+    LPF := ParseFile(LCurrentPath);
+    Add(LPF);
+  end;
+end;
+
+function TProjectsList.ParseFile(const APath: string): TProjectFile;
+var
+  LRowUsesList: TStringList;
+  LFileData: TStringList;
+  i: Integer;
+  LParsingStarted: Boolean;
+  LBlock: string;
+  LIsTitleFound: Boolean;
+begin
+  Result := TProjectFile.Create;
+  LParsingStarted := False;
+  LBlock := '';
+  LRowUsesList := nil;
+  LFileData := nil;
+  try
+    LFileData := TStringList.Create;
+    LRowUsesList := TStringList.Create;
+    if TFile.Exists(APath) then
+    begin
+      LFileData.LoadFromFile(APath);
+      Result.FullPath := APath;
+      LIsTitleFound := False;
+      for i := 0 to Pred(LFileData.Count) do
+      begin
+        // uses
+        if (not LParsingStarted) and (Pos(LFileData[i].Trim.ToLower, 'uses') > 0) then
+          LParsingStarted := True;
+        if LParsingStarted then
+        begin
+          LBlock := LBlock + LFileData[i] + CRLF;
+          if LFileData[i].IndexOf(';') > 0 then
+            LParsingStarted := False;
+        end;
+        if (not LParsingStarted) and (not LBlock.IsEmpty) then
+        begin
+          Result.ParseBlock(LBlock);
+          LBlock := '';
+        end;
+        //Application.Title
+        if not LIsTitleFound then
+        begin
+          if (Pos('application.title', LFileData[i].Trim.ToLower) > 0) then
+          begin
+            Result.ParseTitle(LFileData[i]);
+            LIsTitleFound := not Result.Title.IsEmpty;
+          end;
+        end;
+      end;
+    end;
+  finally
+    LRowUsesList.Free;
+    LFileData.Free
+  end;
+end;
+
+
+
+
+
+
+end.

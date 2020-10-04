@@ -1,0 +1,371 @@
+unit ProjectParserClasses;
+
+interface
+
+uses
+  System.Generics.Collections, System.Classes, System.SysUtils, System.IOUtils, Dialogs;
+
+type
+  TUnitFile = class
+  private
+    FUnitFileName: string;
+    FUnitPath: string;
+    FClassVariable: string;
+    FUsesList: TStringList;
+    FTypesList: TStringList;
+    FUnitLinesCount :integer;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property UnitFileName: string read FUnitFileName write FUnitFileName;
+    property UnitPath: string read FUnitPath write FUnitPath;
+    property ClassVariable: string read FClassVariable write FClassVariable;
+    property UsesList: TStringList read FUsesList;
+    property TypesList: TStringList read FTypesList;
+    property UnitLinesCount: integer read FUnitLinesCount;
+
+    procedure Parse;
+    procedure ParseTypes;
+  end;
+
+  TUnitList = TList<TUnitFile>;
+
+  TProjectFile = class
+  private
+    FFullPath: string;
+    FTitle: string;
+    FUnits: TUnitList;
+    function GetFileName: string;
+  protected
+    function ParseItem(const AStr: string): TUnitFile;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property FullPath: string read FFullPath write FFullPath;
+    property FileName: string read GetFileName;
+    property Title: string read FTitle write FTitle;
+    property Units: TUnitList read FUnits write FUnits;
+
+    procedure ParseBlock(const ABlock: string);
+    procedure ParseTitle(const ABlock: string);
+  end;
+
+  TProjectsList = class(TList<TProjectFile>)
+  protected
+    function ParseFile(const APath: string): TProjectFile;
+  public
+    procedure ParseDirectory(const ADirectory: string; AIsRecursively: Boolean);
+  end;
+
+function ProjectsList: TProjectsList;
+
+const
+  CRLF = #10#13;
+
+implementation
+
+uses
+  UnitParserClasses;
+
+var
+  FProjectsList: TProjectsList;
+
+function ProjectsList: TProjectsList;
+begin
+  Result := FProjectsList;
+end;
+
+{ TProjectFile }
+
+constructor TProjectFile.Create;
+begin
+  FUnits := TUnitList.Create;
+end;
+
+destructor TProjectFile.Destroy;
+begin
+  FUnits.Free;
+  inherited;
+end;
+
+function TProjectFile.GetFileName: string;
+begin
+  Result := TPath.GetFileNameWithoutExtension(FFullPath);
+end;
+
+function TProjectFile.ParseItem(const AStr: string): TUnitFile;
+var
+  LData: string;
+  p: PChar;
+  s: string;
+  index: Integer;
+  pause: Boolean;
+
+  function PathCombine(a, b: string): string;
+  var
+    sl1, sl2: TStringList;
+    drive: string;
+    i: Integer;
+  begin
+    drive := '';
+    sl1 := TStringList.Create;
+    sl2 := TStringList.Create;
+    try
+      if a[2] = ':' then
+      begin
+        drive := a[1];
+        sl1.Delimiter := TPath.DirectorySeparatorChar;
+        sl1.DelimitedText := a.Substring(2);
+      end
+      else
+        sl1.DelimitedText := a;
+      sl2.Delimiter := TPath.DirectorySeparatorChar;
+      sl2.DelimitedText := b;
+      while (sl2.Count > 0) and (sl2[0] = '..') do
+      begin
+        sl1.Delete(sl1.Count - 1);
+        sl2.Delete(0);
+      end;
+      if not drive.IsEmpty then
+        Result := drive + ':';
+      for i := 0 to sl1.Count - 1 do
+        Result := Result + TPath.DirectorySeparatorChar + sl1[i];
+      for i := 0 to sl2.Count - 1 do
+        Result := Result + TPath.DirectorySeparatorChar + sl2[i];
+    finally
+      sl2.Free;
+      sl1.Free;
+    end;
+  end;
+
+begin
+  LData := AStr.Trim + ' ';
+  p := PChar(LData);
+  Result := TUnitFile.Create;
+
+  index := 1;
+  pause := False;
+  s := '';
+  while (p^ <> #0) do
+  begin
+    if not pause then
+      s := s + p^;
+    if ((p^ = ' ') and (s[s.Trim.Length] <> ':')) or (p^ = #0) then
+    begin
+      s := s.Trim;
+      if s.Equals('in') then
+        s := ''
+      else
+        pause := True;
+    end;
+    if pause and not s.IsEmpty then
+    begin
+      case index of
+        1:
+          Result.UnitFileName := s;
+        2:
+          begin
+            if s.Trim[1] = '''' then
+              s := s.Substring(1);
+            if s.Trim[s.Trim.Length] = '''' then
+              s := s.Substring(0, s.Trim.Length - 1);
+            // if TPath.GetFileName(s) = s then
+            if (not s.IsEmpty) and (not((s[1] = '.') and (s[2] = '.'))) then
+              s := TPath.Combine(TPath.GetDirectoryName(FFullPath), s);
+            if (not s.IsEmpty) and ((s[1] = '.') and (s[2] = '.')) then
+            begin
+              s := PathCombine(TPath.GetDirectoryName(FFullPath), s);
+            end;
+
+            Result.UnitPath := s;
+          end;
+        3:
+          Result.ClassVariable := s;
+      end;
+      pause := False;
+      inc(index);
+      s := '';
+    end;
+    inc(p);
+  end;
+  if (Result.UnitPath.IsEmpty and Result.ClassVariable.IsEmpty) then
+    FreeAndNil(Result);
+end;
+
+procedure TProjectFile.ParseTitle(const ABlock: string);
+var
+  s: string;
+const
+  t = 'application.title';
+begin
+  s := ABlock.Substring(Pos(t, ABlock.ToLower) + t.Length).Trim;
+  if (s[1] = ':') and (s[2] = '=') then
+    s := s.Substring(2).Trim;
+  if s[s.Length] = ';' then
+    s := s.Substring(0, s.Length - 1).Trim;
+  if (s[1] = '''') then
+    s := s.Substring(1, MaxInt);
+  if s[s.Length] = '''' then
+    s := s.Substring(0, s.Length - 1).Trim;
+  FTitle := s;
+end;
+
+procedure TProjectFile.ParseBlock(const ABlock: string);
+var
+  TempStr: string;
+  p: PChar;
+  LUnitInfo: TUnitFile;
+  LWaitParsing: Boolean;
+  LStr: string;
+begin
+  TempStr := ABlock.Trim;
+  if Pos(TempStr, 'uses') = 0 then
+    TempStr := TempStr.Substring(4).Trim;
+  p := PChar(TempStr);
+  LStr := '';
+  while (p^ <> #0) do
+  begin
+    LWaitParsing := (p^ = ',') or (p^ = ';');
+    if not LWaitParsing then
+      LStr := LStr + p^;
+    if LWaitParsing then
+    begin
+      LUnitInfo := ParseItem(LStr);
+      if Assigned(LUnitInfo) then
+      begin
+        LUnitInfo.Parse;
+        LUnitInfo.ParseTypes;
+        FUnits.Add(LUnitInfo);
+      end;
+      LStr := '';
+    end;
+    inc(p);
+  end;
+end;
+
+{ TProjectsList }
+
+procedure TProjectsList.ParseDirectory(const ADirectory: string;
+  AIsRecursively: Boolean);
+var
+  LDirectories: TArray<string>;
+  LFiles: TArray<string>;
+  LCurrentPath: string;
+  LPF: TProjectFile;
+begin
+  if AIsRecursively then
+  begin
+    LDirectories := TDirectory.GetDirectories(ADirectory);
+    for LCurrentPath in LDirectories do
+      ParseDirectory(LCurrentPath, True);
+  end;
+  LFiles := TDirectory.GetFiles(ADirectory, '*.dpr');
+  for LCurrentPath in LFiles do
+  begin
+    LPF := ParseFile(LCurrentPath);
+    Add(LPF);
+  end;
+end;
+
+function TProjectsList.ParseFile(const APath: string): TProjectFile;
+var
+  LRowUsesList: TStringList;
+  LFileData: TStringList;
+  i: Integer;
+  LParsingStarted: Boolean;
+  LBlock: string;
+  LIsTitleFound: Boolean;
+begin
+  Result := TProjectFile.Create;
+  LParsingStarted := False;
+  LBlock := '';
+  LRowUsesList := nil;
+  LFileData := nil;
+  try
+    LFileData := TStringList.Create;
+    LRowUsesList := TStringList.Create;
+    if TFile.Exists(APath) then
+    begin
+      LFileData.LoadFromFile(APath);
+      Result.FullPath := APath;
+      LIsTitleFound := False;
+      for i := 0 to Pred(LFileData.Count) do
+      begin
+        // uses
+        if (not LParsingStarted) and (Pos(LFileData[i].Trim.ToLower, 'uses') > 0)
+        then
+          LParsingStarted := True;
+        if LParsingStarted then
+        begin
+          LBlock := LBlock + LFileData[i] + CRLF;
+          if LFileData[i].IndexOf(';') > 0 then
+            LParsingStarted := False;
+        end;
+        if (not LParsingStarted) and (not LBlock.IsEmpty) then
+        begin
+          Result.ParseBlock(LBlock);
+          LBlock := '';
+        end;
+        // Application.Title
+        if not LIsTitleFound then
+        begin
+          if (Pos('application.title', LFileData[i].Trim.ToLower) > 0) then
+          begin
+            Result.ParseTitle(LFileData[i]);
+            LIsTitleFound := not Result.Title.IsEmpty;
+          end;
+        end;
+      end;
+    end;
+  finally
+    LRowUsesList.Free;
+    LFileData.Free
+  end;
+end;
+
+{ TUnitFile }
+
+constructor TUnitFile.Create;
+begin
+  FUsesList := TStringList.Create;
+  FTypesList := TStringList.Create;
+end;
+
+destructor TUnitFile.Destroy;
+begin
+  FTypesList.Free;
+  FUsesList.Free;
+  inherited;
+end;
+
+procedure TUnitFile.Parse;
+var
+  sl: TStringList;
+begin
+  // sl := TStringList.Create;
+  // try
+  // sl.LoadFromFile(TPath.Combine(TPath.GetLibraryPath, 'Components/DefaultZ.txt'));
+  UnitParser.ParseFile(FUnitPath, FUsesList);
+  ShowMessage('!');
+  // UnitParser.RemoveProjectUnits(FUsesList, sl);
+  // finally
+  // sl.Free;
+  // end;
+end;
+
+procedure TUnitFile.ParseTypes;
+begin
+  UnitParser.ParseTypes(FUnitPath, FUsesList);
+end;
+
+initialization
+
+FProjectsList := TProjectsList.Create;
+
+finalization
+
+FProjectsList.Free;
+
+end.

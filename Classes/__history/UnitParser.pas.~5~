@@ -1,0 +1,63 @@
+unit UnitParser;
+
+interface
+
+uses  System.Generics.Collections, System.Classes, System.SysUtils, System.IOUtils;
+
+type
+ {
+  TProjectFile = class
+  private
+    FFullPath: string;
+    FTitle: string;
+    FUnits: TUnitList;
+    function GetFileName: string;
+  protected
+    function ParseItem(const AStr: string): TUnitFile;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property FullPath: string read FFullPath write FFullPath;
+    property FileName: string read GetFileName;
+    property Title: string read FTitle write FTitle;
+    property Units: TUnitList read FUnits write FUnits;
+
+    procedure ParseBlock(const ABlock: string);
+    procedure ParseTitle(const ABlock: string);
+  end;  }
+
+  TProjectGroupFile  = class
+  private
+    FFullPath: string;
+    FTitle: string;
+ //   FUnits: TUnitList;
+//    function GetFileName: string;
+  protected
+  //  function ParseItem(const AStr: string): TUnitFile;
+  public
+//    constructor Create;
+ //   destructor Destroy; override;
+
+//    property FullPath: string read FFullPath write FFullPath;
+//    property FileName: string read GetFileName;
+//    property Title: string read FTitle write FTitle;
+//    property Units: TUnitList read FUnits write FUnits;
+
+//    procedure ParseBlock(const ABlock: string);
+ //   procedure ParseTitle(const ABlock: string);
+  end;
+
+  TProjectsList = class(TList<TProjectGroupFile>)
+  protected
+    function ParseFile(const APath: string): TProjectGroupFile;
+  public
+    procedure ParseDirectory(const ADirectory: string; AIsRecursively: Boolean);
+  end;
+
+
+
+
+implementation
+
+end.
