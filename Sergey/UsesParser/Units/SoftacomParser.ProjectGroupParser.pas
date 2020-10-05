@@ -44,7 +44,9 @@ const
 implementation
 
 // uses
-// SoftacomParser.UnitParser;
+
+
+uses SoftacomParserMainFormUnit;// SoftacomParser.UnitParser;
 
 var
   FProjectsGroupList: TProjectsGroupList;
@@ -122,6 +124,7 @@ var
   end;
 
 begin
+
   LData := AStr.Trim + ' ';
   p := PChar(LData);
   Result := TProjectFile.Create;
@@ -150,14 +153,20 @@ begin
               s := s.Substring(1);
             if s.Trim[s.Trim.Length] = '''' then
               s := s.Substring(0, s.Trim.Length - 1);
-            if TPath.GetFileName(s) = s then
               if (not s.IsEmpty) and (not((s[1] = '.') and (s[2] = '.'))) then
-                s := TPath.Combine(TPath.GetDirectoryName(FFullPath), s);
-            if (not s.IsEmpty) and ((s[1] = '.') and (s[2] = '.')) then
+              begin
+             s := TPath.Combine(TPath.GetDirectoryName(FFullPath), s);
+             end  else
+             if (not s.IsEmpty) and ((s[1] = '.') and (s[2] = '.')) then
             begin
-              s := PathCombine(TPath.GetDirectoryName(FFullPath), s);
-            end;
+            s := PathCombine(TPath.GetDirectoryName(FFullPath), s);
+            end
+            else if TPath.GetFileName(s)<> s then
+            s:= TPath.GetDirectoryName(FFullPath) +  TPath.DirectorySeparatorChar + s;
+
+
             Result.FullPath := s;
+
           end;
       end;
       pause := False;
@@ -166,7 +175,8 @@ begin
     end;
     inc(p);
   end;
-         FProjects.Add(ProjectsList.ParseFile(Result.FullPath));
+
+        FProjects.Add(ProjectsList.ParseFile(Result.FullPath));
 end;
 
 procedure TProjectGroupFile.ParseVersion(const ABlock: string);

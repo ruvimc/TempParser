@@ -179,16 +179,14 @@ object Form1: TForm1
         end
       end
       object lstProjectsGroupList: TListBox
-        Left = 701
+        Left = 728
         Top = 35
-        Width = 209
+        Width = 182
         Height = 407
         Align = alRight
         ItemHeight = 13
         TabOrder = 5
         OnClick = lstProjectsGroupListClick
-        ExplicitLeft = 698
-        ExplicitTop = 38
       end
     end
   end

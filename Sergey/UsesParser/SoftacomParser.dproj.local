@@ -1,22 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.328,=D:\Projects\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.031,D:\Projects\Unit1.pas=D:\Projects\_Internal\UsesParser\UsesParserMainFormUnit.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.703,=D:\Projects\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.656,=D:\Projects\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.523,=D:\Projects\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.031,D:\Projects\Unit1.dfm=D:\Projects\_Internal\UsesParser\UsesParserMainFormUnit.dfm</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.674,D:\Projects\_Internal\UsesParser\Units\SoftacomParser.ProjectParser.pas=D:\Projects\_Internal\UsesParser\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.555,C:\Release\Analis\Sergey\UsesParser\Units\SoftacomParser.UnitParser.pas=</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.328,=D:\Projects\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.447,D:\Projects\_Internal\UsesParser\SoftacomParserMainFormUnit.pas=D:\Projects\_Internal\UsesParser\UsesParserMainFormUnit.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.214,=C:\Release\Analis\Sergey\UsesParser\Units\SoftacomParser.ProjectGroupParser.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.447,D:\Projects\_Internal\UsesParser\SoftacomParserMainFormUnit.dfm=D:\Projects\_Internal\UsesParser\UsesParserMainFormUnit.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.674,D:\Projects\_Internal\UsesParser\Units\SoftacomParser.ProjectParser.pas=D:\Projects\_Internal\UsesParser\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.447,D:\Projects\_Internal\UsesParser\SoftacomParserMainFormUnit.pas=D:\Projects\_Internal\UsesParser\UsesParserMainFormUnit.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.523,=D:\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.555,C:\Release\Analis\Sergey\UsesParser\Units\SoftacomParser.UnitParser.pas=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.031,D:\Projects\Unit1.dfm=D:\Projects\_Internal\UsesParser\UsesParserMainFormUnit.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.214,=C:\Release\Analis\Sergey\UsesParser\Units\SoftacomParser.ProjectGroupParser.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.833,=C:\Release\Analis\Sergey\UsesParser\Units\SoftacomParser.ProjectGroupParser.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.438,D:\Projects\Project1.dproj=D:\Projects\_Internal\UsesParser\UsesParser.dproj</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.055,=D:\Projects\_Internal\UsesParser\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.129,D:\Projects\_Internal\UsesParser\Units\SoftacomParser.UnitParser.pas=D:\Projects\_Internal\UsesParser\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.921,D:\Projects\_Internal\UsesParser\SoftacomParser.dproj=D:\Projects\_Internal\UsesParser\UsesParser.dproj</Transaction>
     <Transaction>1899.12.30 00:00:00.000.949,=D:\Projects\_Internal\UsesParser\Unit1.pas</Transaction>
-    <Transaction>2020.10.04 18:33:16.833,=C:\Release\Analis\Sergey\UsesParser\Units\SoftacomParser.ProjectGroupParser.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.055,=D:\Projects\_Internal\UsesParser\Unit1.pas</Transaction>
   </Transactions>
 </BorlandProject>

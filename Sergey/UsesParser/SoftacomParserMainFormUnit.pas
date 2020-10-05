@@ -62,7 +62,7 @@ uses
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  edtDirecotory.Text := 'c:\Release\Analis\Sergey\UsesParser\'; //TPath.GetLibraryPath;
+  edtDirecotory.Text := 'C:\Release'; //TPath.GetLibraryPath;
   dlgOpenDirectory.DefaultFolder := TPath.GetLibraryPath;
 end;
 
@@ -90,6 +90,7 @@ begin
 
    for uf in   ProjectsGroupList[0].Projects[lstProjectsList.ItemIndex].Units do
     lstProjectUnits.Items.Add(uf.UnitFileName + ' ' + uf.UnitPath + ' ' + uf.ClassVariable);
+
 end;
 
 procedure TForm1.lstProjectUnitsClick(Sender: TObject);
@@ -97,7 +98,7 @@ var
   u: string;
 begin
   lstProjectUnitUses.Items.Clear;
-  for u in ProjectsList[lstProjectsList.ItemIndex].Units[lstProjectUnits.ItemIndex].UsesList do
+  for u in ProjectsGroupList[0].Projects[lstProjectsList.ItemIndex].Units[lstProjectUnits.ItemIndex].UsesList do
     lstProjectUnitUses.Items.Add(u);
 end;
 

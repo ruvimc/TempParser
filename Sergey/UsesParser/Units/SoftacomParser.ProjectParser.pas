@@ -151,6 +151,7 @@ begin
   begin
     if not pause then
       s := s + p^;
+      if s.IsEmpty = false then
     if ((p^ = ' ') and (s[s.Trim.Length] <> ':')) or (p^ = #0) then
     begin
       s := s.Trim;
@@ -170,6 +171,7 @@ begin
             s:= s.Substring(0, s.Trim.Length-1);
 //          if TPath.GetFileName(s) = s then
           if (not s.IsEmpty) and (not ((s[1] = '.') and (s[2] = '.'))) then
+          if TPath.HasValidPathChars(s, true) then
             s := TPath.Combine(TPath.GetDirectoryName(FFullPath), s);
           if (not s.IsEmpty) and ((s[1] = '.') and (s[2] = '.')) then
           begin
